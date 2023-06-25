@@ -30,22 +30,23 @@ while [ $# -gt 0 ]; do
             WORKING_DIRECTORY=$2
             shift 2
             ;;
-            >&2 echo "Unrecognized argument: $1"
+        *)
+            echo "Unrecognized argument: $1" >&2
             usage
             ;;
     esac
 done
 
 if [[ -z $FORGE_VERSION ]]; then
- echo "The FORGE_VERSION value is empty and needs to be set with -v or --forge-version"
- usage
- return 1
+    echo "The FORGE_VERSION value is empty and needs to be set with -v or --forge-version"
+    usage
+    exit 1
 fi
 
 if [[ -z $ADD_TO_STARTUP ]]; then
- echo "The ADD_TO_STARTUP value is empty and needs to be set with --option-2"
- usage
- return 1
+    echo "The ADD_TO_STARTUP value is empty and needs to be set with --option-2"
+    usage
+    exit 1
 fi
 
 download-forge-installer() {
@@ -64,7 +65,7 @@ run-forge-installer() {
 
     echo "Checking for Java and running the Official Forge installer"
 
-    if ! command -v java &> /dev/null; then
+    if ! command -v java >/dev/null 2>&1; then
         echo "Error: Java is either not properly installed or within your HOME path. Please install Java and try again."
         exit 1
     fi
@@ -75,9 +76,9 @@ run-forge-installer() {
 
 add-eula-agreement() {
             
-        echo "Adding EULA agreement to eula.txt"
+    echo "Adding EULA agreement to eula.txt"
     
-        echo "eula=true" > eula.txt
+    echo "eula=true" > eula.txt
     
 }
 
@@ -85,14 +86,14 @@ configure-headless-start() {
 
     echo "Configuring headless start of the Forge server by adding -nogui to the run.sh file"
 
-    sed -i 's#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt "$@"#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/\1/unix_args.txt -nogui "$@"#' run.sh
+    sed -i 's#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt "$@"#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt -nogui "$@"#' run.sh
 }
 
 download-server-properties() {
 
     echo "Downloading a default server.properties file"
 
-    curl -o server.properties https://github.com/vxgxp/forge-minecraft-linux-installer/blob/main/server.properties
+    curl -o server.properties https://raw.githubusercontent.com/itzg/docker-minecraft-server/master/server.properties
 }
 
 add-run-script-to-systemd() {
