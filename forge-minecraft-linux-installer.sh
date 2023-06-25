@@ -70,8 +70,7 @@ run-forge-installer() {
         exit 1
     fi
 
-    java -jar forge-installer.jar --installServer
-
+    java -jar forge-installer.jar --installServer >/dev/null 2>&1
 }
 
 add-eula-agreement() {
@@ -93,7 +92,7 @@ download-server-properties() {
 
     echo "Downloading a default server.properties file"
 
-    curl -o server.properties https://raw.githubusercontent.com/itzg/docker-minecraft-server/master/server.properties
+    curl -o server.properties https://github.com/vxgxp/forge-minecraft-linux-installer/blob/main/server.properties
 }
 
 add-run-script-to-systemd() {
