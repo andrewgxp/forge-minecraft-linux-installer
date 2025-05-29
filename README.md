@@ -22,8 +22,8 @@ A Bash script to automate downloading, installing, and configuring a Forge Minec
 ## Installation 📦
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/vxgxp/forge-minecraft-linux-installer.git
+   cd forge-minecraft-linux-installer
    ```
 2. Make the script executable:
    ```bash
@@ -33,7 +33,7 @@ A Bash script to automate downloading, installing, and configuring a Forge Minec
 ## Usage 🎮
 Run the script with the required options:
 ```bash
-./setup-forge-server.sh -v <forge_version> [-s yes|no] [-w <working_directory>]
+./forge-minecraft-linux-installer.sh -v <forge_version> [-s yes|no] [-w <working_directory>]
 ```
 
 ## Options ⚙️
@@ -47,7 +47,7 @@ Run the script with the required options:
 ## Examples 📝
 ### 1. Full installation with systemd
 ```bash
-./setup-forge-server.sh \
+./forge-minecraft-linux-installer.sh \
   -v 1.20.1-41.2.0 \
   -s yes \
   -w /opt/minecraft-server
@@ -55,7 +55,7 @@ Run the script with the required options:
 
 ### 2. Quick start in the current directory
 ```bash
-./setup-forge-server.sh --forge-version 1.19.4-45.1.0
+./forge-minecraft-linux-installer.sh --forge-version 1.19.4-45.1.0
 ```
 
 ## Support ❓
