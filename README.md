@@ -1,3 +1,5 @@
+![badge](https://github.com/vxgxp/forge-minecraft-linux-installer/actions/workflows/build-docker-image.yml/badge.svg)
+
 # Forge Minecraft Server Installer 🚀
 
 A Bash script to automate downloading, installing, and configuring a Forge Minecraft server on systemd-based Linux systems. The script handles version selection, EULA agreement, headless mode configuration, default server properties, and optional systemd service setup.
