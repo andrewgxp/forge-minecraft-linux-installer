@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: build
-      url: https://test.com
-  
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,6 +27,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: dxgxp/forge-minecraft:${{ github.sha }}
+          tags: dxgxp/forge-minecraft:latest
           build-args: |
             FORGE_VERSION=1.21.5-55.0.21
