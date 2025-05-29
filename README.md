@@ -1,4 +1,5 @@
 ![badge](https://github.com/vxgxp/forge-minecraft-linux-installer/actions/workflows/build-docker-image.yml/badge.svg)
+![minecraft](https://github.com/user-attachments/assets/9e6451bd-2fa4-4424-88a4-8a062de4f01f)
 
 # Forge Minecraft Server Installer 🚀
 
