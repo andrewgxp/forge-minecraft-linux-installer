@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forge-minecraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forge-minecraft
+  template:
+    metadata:
+      labels:
+        app: forge-minecraft
+    spec:
+      containers:
+        - name: forge-minecraft
+          image: dxgxp/forge-minecraft:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 25565
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forge-minecraft
+spec:
+  selector:
+    app: forge-minecraft
+  ports:
+    - protocol: TCP
+      port: 25565
+      targetPort: 25565
+  type: NodePort
