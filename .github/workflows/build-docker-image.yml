@@ -3,6 +3,8 @@ name: Build Minecraft Forge Docker Image
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
 
 jobs:
   build-minecraft-forge:
