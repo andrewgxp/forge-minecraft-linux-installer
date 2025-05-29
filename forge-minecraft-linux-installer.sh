@@ -1,140 +1,122 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+#/ Usage: $(basename "$0") -v <forge_version> [-s yes|no] [-w <working_directory>]
+#/ Options:
+#/   -v, --forge-version     Forge version (including build number), e.g. "1.20.1-41.2.0"
+#/   -s, --startup           Install a systemd service? "yes" or "no" (default: no)
+#/   -w, --working-directory Directory to install server into (default: current directory)
+#/   -h, --help              Show this help message
 
-# Default options
 FORGE_VERSION=""
 ADD_TO_STARTUP="no"
-WORKING_DIRECTORY=$(pwd)
-SYSTEMD_USER=$(whoami)
+WORKING_DIRECTORY="$(pwd)"
+SYSTEMD_USER="$(whoami)"
 
 usage() {
-    grep '^#/' < "$0" | cut -c 4-
-    exit 2
+  grep '^#/' "$0" | sed 's/^#\///'
+  exit 2
 }
 
-while [ $# -gt 0 ]; do
-    case "$1" in
-        -h|--help)
-            usage
-            ;;
-        -v|--forge-version)
-            FORGE_VERSION=$2
-            shift 2
-            ;;
-        -s|--startup|-startup)
-            ADD_TO_STARTUP=$2
-            shift 2
-            ;;
-        -w|--working-directory)
-            WORKING_DIRECTORY=$2
-            shift 2
-            ;;
-        *)
-            echo "Unrecognized argument: $1" >&2
-            usage
-            ;;
-    esac
+# Parse CLI args
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)           usage ;;
+    -v|--forge-version)  FORGE_VERSION="$2"; shift 2 ;;
+    -s|--startup)        ADD_TO_STARTUP="$2"; shift 2 ;;
+    -w|--working-directory)
+                         WORKING_DIRECTORY="$2"; shift 2 ;;
+    *)
+      echo "Error: Unrecognized argument: $1" >&2
+      usage
+      ;;
+  esac
 done
 
-if [[ -z $FORGE_VERSION ]]; then
-    echo "The FORGE_VERSION value is empty and needs to be set with -v or --forge-version"
-    usage
-    exit 1
+# Validate required options
+if [[ -z "$FORGE_VERSION" ]]; then
+  echo "Error: --forge-version is required." >&2
+  usage
 fi
 
-if [[ -z $ADD_TO_STARTUP ]]; then
-    echo "The ADD_TO_STARTUP value is empty and needs to be set with --option-2"
-    usage
-    exit 1
+if [[ ! "$ADD_TO_STARTUP" =~ ^(yes|no)$ ]]; then
+  echo "Error: --startup must be 'yes' or 'no'; got '$ADD_TO_STARTUP'." >&2
+  usage
 fi
 
-download-forge-installer() {
-    
-    echo "Downloading Forge version $FORGE_VERSION"
-    
-    curl -o forge-installer.jar https://maven.minecraftforge.net/net/minecraftforge/forge/$FORGE_VERSION/forge-$FORGE_VERSION-installer.jar
-    
-    if [ $? -ne 0 ]; then
-        echo "Error: The download of Forge version $FORGE_VERSION failed. Please check the version to ensure you've included the full build number and try again"
-        exit 1
-    fi
+# Ensure working dir exists, then switch into it
+if [[ ! -d "$WORKING_DIRECTORY" ]]; then
+  echo "Error: Directory '$WORKING_DIRECTORY' does not exist." >&2
+  exit 1
+fi
+cd "$WORKING_DIRECTORY"
+
+# Functions with safe names and quotes!
+
+download_forge_installer() {
+  echo "[1/6] Downloading Forge $FORGE_VERSION…"
+  curl -L --fail -o forge-installer.jar \
+    "https://maven.minecraftforge.net/net/minecraftforge/forge/$FORGE_VERSION/forge-$FORGE_VERSION-installer.jar"
 }
 
-run-forge-installer() {
-
-    echo "Checking for Java and running the Official Forge installer"
-
-    if ! command -v java >/dev/null 2>&1; then
-        echo "Error: Java is either not properly installed or within your HOME path. Please install Java and try again."
-        exit 1
-    fi
-
-    java -jar forge-installer.jar --installServer >/dev/null 2>&1
+run_forge_installer() {
+  echo "[2/6] Running Forge installer…"
+  command -v java >/dev/null 2>&1 || { echo "Error: Java not found." >&2; exit 1; }
+  java -jar forge-installer.jar --installServer
 }
 
-add-eula-agreement() {
-            
-    echo "Adding EULA agreement to eula.txt"
-    
-    echo "eula=true" > eula.txt
-    
+add_eula() {
+  echo "[3/6] Agreeing to EULA…"
+  echo "eula=true" > eula.txt
 }
 
-configure-headless-start() {
-
-    echo "Configuring headless start of the Forge server by adding -nogui to the run.sh file"
-
-    sed -i 's#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt "$@"#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt -nogui "$@"#' run.sh
+configure_headless_start() {
+  echo "[4/6] Patching run.sh for headless mode…"
+  if [[ -f run.sh ]]; then
+    sed -E -i.bak \
+      's#(java .*unix_args.txt)(.*)#\1 -nogui\2#' run.sh
+  else
+    echo "Warning: run.sh not found; skipping headless patch." >&2
+  fi
 }
 
-download-server-properties() {
-
-    echo "Downloading a default server.properties file"
-
-    curl -o server.properties https://github.com/vxgxp/forge-minecraft-linux-installer/blob/main/server.properties
+download_server_properties() {
+  echo "[5/6] Downloading default server.properties…"
+  curl -L --fail -o server.properties \
+    "https://raw.githubusercontent.com/vxgxp/forge-minecraft-linux-installer/main/server.properties"
 }
 
-add-run-script-to-systemd() {
-
-    ### Only run if ADD_TO_STARTUP is set to yes
-
-    if [[ $ADD_TO_STARTUP == "no" ]]; then
-        echo "Skipping adding the Minecraft server to startup"
-        
-    fi
-
-        if [[ $ADD_TO_STARTUP == "yes" ]]; then
-
-        echo "Adding a systemd service to start the Minecraft server on boot"
-        echo "You will be prompted for your sudo password to add the systemd service"
-
-        sudo tee /etc/systemd/system/forge-server.service >/dev/null <<-EOF
-
+add_systemd_service() {
+  if [[ "$ADD_TO_STARTUP" == "yes" ]]; then
+    echo "[6/6] Installing systemd service…"
+    sudo tee /etc/systemd/system/forge-server.service >/dev/null <<EOF
 [Unit]
 Description=Forge Minecraft Server
+After=network.target
 
 [Service]
-ExecStart=$WORKING_DIRECTORY/run.sh
-Restart=always
-User=$SYSTEMD_USER
-Group=$SYSTEMD_USER
-Environment=PATH=/usr/bin:/usr/local/bin
 WorkingDirectory=$WORKING_DIRECTORY
+ExecStart=$WORKING_DIRECTORY/run.sh
+User=$SYSTEMD_USER
+Restart=always
+Environment=PATH=/usr/bin:/usr/local/bin
 
 [Install]
 WantedBy=multi-user.target
-
 EOF
-
-        sudo systemctl daemon-reload
-        sudo systemctl enable forge-server.service
-        fi
+    sudo systemctl daemon-reload
+    sudo systemctl enable forge-server.service
+  else
+    echo "[6/6] Skipping systemd service installation."
+  fi
 }
-    
-download-forge-installer;
-run-forge-installer;
-add-eula-agreement;
-configure-headless-start;
-download-server-properties;
-add-run-script-to-systemd;
+
+# Launch the func
+download_forge_installer
+run_forge_installer
+add_eula
+configure_headless_start
+download_server_properties
+add_systemd_service
+
+echo "All done! Your Forge server is ready to go!" 
