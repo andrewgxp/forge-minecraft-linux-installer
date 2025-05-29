@@ -1,7 +1,7 @@
 # Dockerfile
 
-# Base image with Java 17 (Minecraft 1.20+ wants Java 17)
-FROM eclipse-temurin:17
+# Base image with Java 21
+FROM eclipse-temurin:21
 
 # Set working directory
 WORKDIR /server
