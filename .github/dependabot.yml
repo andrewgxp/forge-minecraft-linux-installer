@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "docker"
+    directory: "/" # Location of Dockerfiles (root dir)
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/" # Root directory for GitHub Actions workflows
+    schedule:
+      interval: "weekly"
