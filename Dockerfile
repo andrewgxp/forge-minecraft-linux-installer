@@ -23,7 +23,7 @@ RUN echo "eula=true" > eula.txt
 ADD https://raw.githubusercontent.com/vxgxp/forge-minecraft-linux-installer/main/server.properties server.properties
 
 # Modify run.sh to include -nogui for headless mode
-RUN sed -i 's#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt "$@"#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/[^/]*/unix_args.txt -nogui "$@"#' run.sh
+RUN sed -i 's#^java @user_jvm_args.txt @libraries/net/minecraftforge/forge/.*unix_args.txt.*#java @user_jvm_args.txt @libraries/net/minecraftforge/forge/'"$FORGE_VERSION"'/unix_args.txt -nogui "$@"#' run.sh
 
 # Expose default Minecraft port
 EXPOSE 25565
