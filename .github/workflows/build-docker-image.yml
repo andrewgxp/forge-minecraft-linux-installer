@@ -2,6 +2,10 @@ name: Build Minecraft Forge Docker Image
 
 on:
   push:
+    paths:
+      - 'Dockerfile'
+      - 'forge-minecraft-linux-installer.sh'
+      - 'server.properties'
   workflow_dispatch:
 
 permissions:
