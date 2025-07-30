@@ -36,4 +36,4 @@ jobs:
           push: true
           tags: dxgxp/forge-minecraft:latest
           build-args: |
-            FORGE_VERSION=1.21.5-55.0.21
+            FORGE_VERSION=1.21.8-58.0.1
