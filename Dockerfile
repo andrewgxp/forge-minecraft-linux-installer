@@ -3,8 +3,17 @@
 # Base image with Java 21
 FROM eclipse-temurin:21
 
-# Set working directory
+# Add a user called Minecraft to run the commands for better security
+# See https://www.docker.com/blog/understanding-the-docker-user-instruction/ for more details
+RUN groupadd -g 1001 minecraft && \
+    useradd -m -u 1001 -g minecraft minecraft
+
+# Set working directory and ensure that the new minecraft user:group has permissions
 WORKDIR /server
+RUN chown -R minecraft:minecraft /server
+
+# Sets the user to Minecraft to avoid the commands below from being run as root the security purposes outlined in the article above
+USER minecraft
 
 # Forge version build argument (e.g., 1.20.1-47.2.0)
 ARG FORGE_VERSION
