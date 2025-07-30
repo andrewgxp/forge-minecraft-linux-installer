@@ -1,6 +1,7 @@
 name: Build Minecraft Forge Docker Image
 
 on:
+  push:
   workflow_dispatch:
 
 permissions:
