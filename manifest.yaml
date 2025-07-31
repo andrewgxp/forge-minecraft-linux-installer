@@ -18,6 +18,8 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 25565
+          securityContext:
+            allowPrivilegeEscalation: false
 ---
 apiVersion: v1
 kind: Service
