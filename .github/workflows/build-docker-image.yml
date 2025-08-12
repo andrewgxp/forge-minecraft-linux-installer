@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build-minecraft-forge:
-    runs-on: ubuntu-latest
+    runs-on: actions-runner-scale-set
     environment:
       name: build
     steps:
