@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build-minecraft-forge:
-    runs-on: actions-runner-scale-set
+    runs-on: arc-runner-set
     environment:
       name: build
     steps:
