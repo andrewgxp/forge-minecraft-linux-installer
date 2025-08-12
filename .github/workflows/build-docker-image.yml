@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build-minecraft-forge:
-    runs-on: arc-runner-set
+    runs-on: ubuntu-latest
     environment:
       name: build
     steps:
