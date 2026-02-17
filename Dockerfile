@@ -1,7 +1,7 @@
 # Dockerfile
 
 # Base image with Java 21
-FROM eclipse-temurin:21
+FROM eclipse-temurin:25
 
 # Add a user called Minecraft to run the commands for better security
 # See https://www.docker.com/blog/understanding-the-docker-user-instruction/ for more details
