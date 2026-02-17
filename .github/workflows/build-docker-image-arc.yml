@@ -1,7 +1,6 @@
 name: Build Minecraft Forge Docker Image (ARC)
 
 on:
-  push:
   workflow_dispatch:
 
 permissions:
