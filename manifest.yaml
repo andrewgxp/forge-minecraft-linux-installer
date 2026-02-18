@@ -1,7 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: forge-minecraft
+  labels:
+    name: forge-minecraft
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: forge-minecraft
+  namespace: forge-minecraft
 spec:
   replicas: 1
   selector:
@@ -18,14 +26,12 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 25565
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: forge-minecraft
+  namespace: forge-minecraft
 spec:
   selector:
     app: forge-minecraft
